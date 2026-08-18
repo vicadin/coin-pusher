@@ -1,7 +1,7 @@
 import { Application, Container, Graphics, Texture, Ticker } from 'pixi.js';
-import { GAME_CONFIG } from '../config/gameConfig';
-import { Coin, createCoinTexture, resetCoinIds } from '../components/Coin';
-import { PhysicsSystem } from '../systems/PhysicsSystem';
+import { GAME_CONFIG } from '@/config/gameConfig';
+import { Coin, createCoinTexture, resetCoinIds } from '@/components/Coin';
+import { PhysicsSystem } from '@/systems/PhysicsSystem';
 
 export type FieldBounds = {
   left: number;

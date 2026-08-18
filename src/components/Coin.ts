@@ -1,6 +1,6 @@
 import { Container, Graphics, Sprite, Texture, RenderTexture, Application } from 'pixi.js';
 import { COIN_CONFIG } from '../config/coinConfig';
-import { CoinState, createInitialCoinState } from '../model/CoinState';
+import { CoinState, createInitialCoinState } from '@/model/CoinState';
 
 let nextCoinId = 1;
 

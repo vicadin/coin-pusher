@@ -18,6 +18,11 @@ export const GAME_CONFIG = {
   coinRestitution: 0.55,
   coinMass: 1.0,
 
+  maxDropsBeforeCta: 3,
+  settleVelocityThreshold: 22,
+  settleFramesRequired: 30,
+  dropCooldownMs: 800,
+
 } as const;
 
 export type GameConfig = typeof GAME_CONFIG;
