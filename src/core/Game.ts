@@ -1,6 +1,7 @@
-import { Application, Container, Graphics, Texture } from 'pixi.js';
+import { Application, Container, Graphics, Texture, Ticker } from 'pixi.js';
 import { GAME_CONFIG } from '../config/gameConfig';
 import { Coin, createCoinTexture, resetCoinIds } from '../components/Coin';
+import { PhysicsSystem } from '../systems/PhysicsSystem';
 
 export type FieldBounds = {
   left: number;
@@ -20,7 +21,10 @@ export class Game {
 
   private fieldBounds: FieldBounds | null = null;
   private coinTexture: Texture | null = null;
-  private testCoin: Coin | null = null;
+  
+  private activeCoins: Coin[] = [];
+  private readonly physics = new PhysicsSystem();
+  
   private destroyed = false;
 
   async init(container: HTMLElement): Promise<void> {
@@ -41,10 +45,10 @@ export class Game {
     this.setupField();
     this.setupCoinTexture();
     this.spawnTestCoin();
+    this.setupTicker();
     this.setupResize(container);
     this.hideLoadingScreen();
 
-    console.info('[Game] Step 4 initialized: Single Coin rendered at center.');
   }
 
   private setupLayers(): void {
@@ -123,10 +127,24 @@ export class Game {
   private spawnTestCoin(): void {
     if (!this.coinTexture || !this.coinLayer) return;
 
-    this.testCoin = new Coin(this.coinTexture);
-    this.testCoin.spawn(GAME_CONFIG.logicalWidth / 2, GAME_CONFIG.fieldTop + 40);
+    const coin = new Coin(this.coinTexture);
+    coin.spawn(GAME_CONFIG.logicalWidth / 2, GAME_CONFIG.fieldTop + 20);
+    coin.state.velocityX = 20;
 
-    this.coinLayer.addChild(this.testCoin);
+    this.coinLayer.addChild(coin);
+    this.activeCoins.push(coin);
+  }
+
+  private setupTicker(): void {
+    this.app?.ticker.add(this.onTick, this);
+  }
+
+  private onTick(ticker: Ticker): void {
+    if (this.destroyed) return;
+
+    const deltaSeconds = ticker.deltaMS / 1000;
+
+    this.physics.update(this.activeCoins, deltaSeconds);
   }
 
   private setupResize(container: HTMLElement): void {
@@ -166,6 +184,7 @@ export class Game {
     if (this.destroyed) return;
     this.destroyed = true;
 
+    this.app?.ticker.remove(this.onTick, this);
     window.removeEventListener('resize', this.onResize);
     this.app?.destroy(true, { children: true });
     this.app = null;
