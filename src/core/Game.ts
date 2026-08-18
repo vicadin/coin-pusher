@@ -1,5 +1,6 @@
-import { Application, Container, Graphics } from 'pixi.js';
+import { Application, Container, Graphics, Texture } from 'pixi.js';
 import { GAME_CONFIG } from '../config/gameConfig';
+import { Coin, createCoinTexture, resetCoinIds } from '../components/Coin';
 
 export type FieldBounds = {
   left: number;
@@ -13,15 +14,18 @@ export type FieldBounds = {
 export class Game {
   private app: Application | null = null;
   private worldContainer: Container | null = null;
-
   private fieldContainer: Container | null = null;
   private coinLayer: Container | null = null;
   private uiLayer: Container | null = null;
 
   private fieldBounds: FieldBounds | null = null;
+  private coinTexture: Texture | null = null;
+  private testCoin: Coin | null = null;
   private destroyed = false;
 
   async init(container: HTMLElement): Promise<void> {
+    resetCoinIds();
+
     this.app = new Application();
     await this.app.init({
       background: 0x080e2b,
@@ -35,9 +39,12 @@ export class Game {
 
     this.setupLayers();
     this.setupField();
+    this.setupCoinTexture();
+    this.spawnTestCoin();
     this.setupResize(container);
     this.hideLoadingScreen();
 
+    console.info('[Game] Step 4 initialized: Single Coin rendered at center.');
   }
 
   private setupLayers(): void {
@@ -49,7 +56,6 @@ export class Game {
     this.uiLayer = new Container();
 
     this.app.stage.addChild(this.worldContainer);
-
     this.worldContainer.addChild(
       this.fieldContainer,
       this.coinLayer,
@@ -107,6 +113,20 @@ export class Game {
       width: fieldWidth - 8,
       height: fieldHeight - 8,
     };
+  }
+
+  private setupCoinTexture(): void {
+    if (!this.app) return;
+    this.coinTexture = createCoinTexture(this.app);
+  }
+
+  private spawnTestCoin(): void {
+    if (!this.coinTexture || !this.coinLayer) return;
+
+    this.testCoin = new Coin(this.coinTexture);
+    this.testCoin.spawn(GAME_CONFIG.logicalWidth / 2, GAME_CONFIG.fieldTop + 40);
+
+    this.coinLayer.addChild(this.testCoin);
   }
 
   private setupResize(container: HTMLElement): void {
