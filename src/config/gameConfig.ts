@@ -11,12 +11,12 @@ export const GAME_CONFIG = {
   coinMass: 1.0,
 
   fieldPadding: 24,
-  fieldTop: 80,
-  fieldBottom: 540,
+  fieldTop: 70,
+  fieldBottom: 524,
 
-  pusherY: 480,
-  pusherHeight: 52,
-  pusherWidth: 150,
+  pusherY: 468,
+  pusherHeight: 50,
+  pusherWidth: 145,
   pusherSpeed: 2.0,
   pusherAmplitude: 75,
 

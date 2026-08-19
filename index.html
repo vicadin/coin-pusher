@@ -5,9 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>Coin Pusher</title>
+    <link rel="stylesheet" href="/src/styles/main.css" />
   </head>
   <body>
     <div id="app">
+      <div id="loading-screen" class="overlay">
+        <div class="loading-content">
+          <div class="loading-spinner"></div>
+          <p class="loading-text">Loading...</p>
+        </div>
+      </div>
+
+      <div id="game-container"></div>
+
+      <div id="cta-overlay" class="overlay hidden">
+        <div class="cta-content">
+          <div class="cta-badge">🎉 YOU WON!</div>
+          <div class="cta-coins-win" id="cta-coins-win">+100 COINS</div>
+          <div class="cta-coins-row">🪙 🪙 🪙 🪙</div>
+          <h2 class="cta-title">GET EVEN MORE COINS!</h2>
+          <p class="cta-subtitle">Join now to collect unlimited coins & win big!</p>
+          <button id="cta-button" class="cta-button">PLAY NOW</button>
+        </div>
+      </div>
     </div>
+    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

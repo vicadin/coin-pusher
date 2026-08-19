@@ -14,16 +14,16 @@ export class DropButton extends Container {
     super();
     this.eventMode = 'static';
     this.cursor = 'pointer';
-    this.hitArea = new Rectangle(-110, -30, 220, 60);
+    this.hitArea = new Rectangle(-90, -25, 180, 50);
 
     this.hintLabel = new Text({
       text: 'DROP A COIN!',
       style: new TextStyle({
         fontFamily: 'Arial, sans-serif',
-        fontSize: 14,
+        fontSize: 12.5,
         fontWeight: 'bold',
         fill: 0xffeb3b,
-        letterSpacing: 1,
+        letterSpacing: 0.8,
         dropShadow: {
           alpha: 0.8,
           angle: Math.PI / 2,
@@ -34,16 +34,16 @@ export class DropButton extends Container {
       }),
     });
     this.hintLabel.anchor.set(0.5);
-    this.hintLabel.position.set(0, -56);
+    this.hintLabel.position.set(0, -60);
 
     this.handIcon = new Text({
       text: '👆',
       style: new TextStyle({
-        fontSize: 26,
+        fontSize: 18,
       }),
     });
     this.handIcon.anchor.set(0.5);
-    this.handIcon.position.set(0, -34);
+    this.handIcon.position.set(0, -40);
     this.handIcon.rotation = Math.PI;
 
     this.background = new Graphics();
@@ -52,7 +52,7 @@ export class DropButton extends Container {
       text: 'DROP',
       style: new TextStyle({
         fontFamily: 'Arial, sans-serif',
-        fontSize: 26,
+        fontSize: 21,
         fontWeight: '900',
         fill: 0xffffff,
         letterSpacing: 2,
@@ -69,7 +69,7 @@ export class DropButton extends Container {
     this.buttonLabel.position.set(0, 0);
 
     this.addChild(this.hintLabel, this.handIcon, this.background, this.buttonLabel);
-    this.drawBackground(200, 56);
+    this.drawBackground(160, 44);
 
     this.on('pointertap', () => {
       if (!this.enabled) {
@@ -82,22 +82,22 @@ export class DropButton extends Container {
   private drawBackground(width: number, height: number): void {
     this.background.clear();
 
-    this.background.roundRect(-width / 2, -height / 2 + 5, width, height, 28).fill({
+    this.background.roundRect(-width / 2, -height / 2 + 4, width, height, 22).fill({
       color: 0x1b5e20,
       alpha: 0.9,
     });
 
-    this.background.roundRect(-width / 2, -height / 2, width, height, 28).fill({
+    this.background.roundRect(-width / 2, -height / 2, width, height, 22).fill({
       color: 0x43a047,
     });
 
-    this.background.roundRect(-width / 2, -height / 2, width, height, 28).stroke({
+    this.background.roundRect(-width / 2, -height / 2, width, height, 22).stroke({
       color: 0x81c784,
-      width: 3,
+      width: 2.5,
     });
 
     this.background
-      .roundRect(-width / 2 + 6, -height / 2 + 3, width - 12, height * 0.42, 20)
+      .roundRect(-width / 2 + 5, -height / 2 + 2, width - 10, height * 0.4, 14)
       .fill({ color: 0xa5d6a7, alpha: 0.5 });
   }
 
@@ -129,13 +129,13 @@ export class DropButton extends Container {
     }
 
     this.pulseTime += deltaSeconds;
-    const pulse = 1 + Math.sin((this.pulseTime * Math.PI * 2) / 1.1) * 0.045;
+    const pulse = 1 + Math.sin((this.pulseTime * Math.PI * 2) / 1.1) * 0.035;
     this.scale.set(pulse);
 
     if (this.showHand) {
-      this.handBounceTime += deltaSeconds * 6;
-      const offsetY = Math.sin(this.handBounceTime) * 5;
-      this.handIcon.position.set(0, -34 + offsetY);
+      this.handBounceTime += deltaSeconds * 5;
+      const offsetY = Math.sin(this.handBounceTime) * 3;
+      this.handIcon.position.set(0, -40 + offsetY);
     }
   }
 
