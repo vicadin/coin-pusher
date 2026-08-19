@@ -23,6 +23,7 @@ import { ParticleSystem } from '@/systems/ParticleSystem';
 import { ObjectPool } from '@/utils/ObjectPool';
 import { Tween, TweenManager, easeOutCubic } from '@/utils/easing';
 import { randomRange } from '@/utils/random';
+import { AudioManager } from '@/utils/AudioManager';
 import type { AdBridge } from '@/bridge/AdBridge';
 
 export class Game {
@@ -31,6 +32,7 @@ export class Game {
   private readonly stateMachine = new StateMachine();
   private readonly gameState: GameState = createInitialGameState();
   private readonly tweenManager = new TweenManager();
+  private readonly audio = new AudioManager();
 
   private app: Application | null = null;
   private worldContainer: Container | null = null;
@@ -146,6 +148,7 @@ export class Game {
       if (this.dropButton) {
         this.dropButton.visible = false;
       }
+      this.audio.play('cta');
       this.ctaPopup?.show(this.gameState.totalWon || 100, () => {
         this.eventBus.emit(GameEvents.CTA_SHOWN);
       });
@@ -410,6 +413,7 @@ export class Game {
     const { left, right } = this.fieldBounds;
     const centerX = (left + right) / 2;
 
+    // Arrange an appealing, natural stack/heap of coins in the lower half (Y = 360..465)
     // Layer 1 (Bottom foundation: 6 coins right above moving bottom pusher)
     for (let i = 0; i < 6; i++) {
       const coin = this.coinPool.acquire();
@@ -476,6 +480,7 @@ export class Game {
 
   private setupInputUnlock(): void {
     const unlock = (): void => {
+      this.audio.unlock();
       window.removeEventListener('pointerdown', unlock);
     };
     window.addEventListener('pointerdown', unlock);
@@ -502,6 +507,7 @@ export class Game {
     this.spawnDroppedCoin(targetX);
     this.stateMachine.transition('DROPPING');
     this.eventBus.emit(GameEvents.DROP_STARTED);
+    this.audio.play('drop');
   }
 
   private spawnDroppedCoin(targetX?: number): void {
@@ -590,6 +596,7 @@ export class Game {
   }
 
   private onCoinCollected(amount: number, coin: Coin, isJackpot = false): void {
+    this.audio.play('reward');
 
     if (isJackpot) {
       this.particleSystem?.burst(coin.state.positionX, coin.state.positionY, 0xffeb3b, 24);
