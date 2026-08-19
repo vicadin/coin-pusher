@@ -1,5 +1,5 @@
 export type CoinState = {
-  readonly id: number;
+  id: number;
   positionX: number;
   positionY: number;
   velocityX: number;
@@ -12,9 +12,9 @@ export type CoinState = {
 
 export function createCoinState(
   id: number,
-  positionX: number,
-  positionY: number,
-  radius: number,
+  positionX = 0,
+  positionY = 0,
+  radius = 16,
   isDropped = false,
 ): CoinState {
   return {

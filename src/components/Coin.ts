@@ -1,72 +1,133 @@
-import { Container, Graphics, Sprite, Texture, RenderTexture, Application } from 'pixi.js';
-import { COIN_CONFIG } from '../config/coinConfig';
-import { CoinState, createInitialCoinState } from '@/model/CoinState';
+import { Graphics, Container, Texture } from 'pixi.js';
+import { COIN_CONFIG } from '@/config/coinConfig';
+import { type CoinState, createCoinState } from '@/model/CoinState';
 
 let nextCoinId = 1;
 
-export function resetCoinIds(): void {
-  nextCoinId = 1;
-}
-
-export function createCoinTexture(app: Application): Texture {
-  const size = (COIN_CONFIG.radius + 2) * 2;
-  const renderTexture = RenderTexture.create({ width: size, height: size });
-  const g = new Graphics();
-
-  const cx = size / 2;
-  const cy = size / 2;
-  const r = COIN_CONFIG.radius;
-
-  g.circle(cx, cy + 1.5, r).fill({ color: 0x000000, alpha: 0.35 });
-
-  g.circle(cx, cy, r).fill({ color: COIN_CONFIG.edgeColor });
-
-  g.circle(cx, cy, r - 2).fill({ color: COIN_CONFIG.baseColor });
-
-  g.circle(cx, cy, r - 4).fill({ color: COIN_CONFIG.innerColor });
-
-  const starRadius = r * 0.42;
-  g.star(cx, cy, 5, starRadius, starRadius * 0.45).fill({ color: COIN_CONFIG.starColor });
-
-  g.ellipse(cx - r * 0.25, cy - r * 0.3, r * 0.4, r * 0.2).fill({
-    color: COIN_CONFIG.highlightColor,
-    alpha: 0.6,
-  });
-
-  app.renderer.render({ container: g, target: renderTexture });
-  g.destroy();
-
-  return renderTexture;
-}
-
 export class Coin extends Container {
   readonly state: CoinState;
-  private readonly sprite: Sprite;
+  private readonly body: Graphics;
+  private glow: Graphics | null = null;
 
-  constructor(texture: Texture, radius: number = COIN_CONFIG.radius) {
+  constructor(_texture: Texture, radius: number, isDropped = false) {
     super();
-    this.state = createInitialCoinState(nextCoinId++, radius);
+    this.state = createCoinState(nextCoinId, 0, 0, radius, isDropped);
+    nextCoinId += 1;
 
-    this.sprite = new Sprite(texture);
-    this.sprite.anchor.set(0.5);
-    this.addChild(this.sprite);
+    this.body = new Graphics();
+    this.drawCoinBody(radius);
+    this.addChild(this.body);
   }
 
-  spawn(x: number, y: number): void {
-    this.state.positionX = x;
-    this.state.positionY = y;
+  private drawCoinBody(radius: number): void {
+    this.body.clear();
+
+    const { colors } = COIN_CONFIG;
+
+    this.body.circle(0, 1.5, radius).fill({ color: 0x000000, alpha: 0.25 });
+
+    this.body.circle(0, 0, radius).fill({ color: colors.edge });
+    this.body.circle(0, 0, radius - 1.5).fill({ color: colors.outer });
+
+    this.body.circle(0, 0, radius * 0.82).fill({ color: colors.inner });
+
+    this.body.circle(0, 0, radius * 0.82).stroke({ color: colors.symbol, width: 1, alpha: 0.5 });
+
+    this.body.circle(-radius * 0.3, -radius * 0.3, radius * 0.32).fill({
+      color: colors.highlight,
+      alpha: 0.55,
+    });
+
+    this.drawStar(0, 0, 5, radius * 0.42, radius * 0.2, colors.symbol, colors.star);
+  }
+
+  private drawStar(
+    cx: number,
+    cy: number,
+    spikes: number,
+    outerRadius: number,
+    innerRadius: number,
+    fillColor: number,
+    highlightColor: number,
+  ): void {
+    let rot = (Math.PI / 2) * 3;
+    const step = Math.PI / spikes;
+
+    this.body.moveTo(cx, cy - outerRadius);
+    for (let i = 0; i < spikes; i++) {
+      let x = cx + Math.cos(rot) * outerRadius;
+      let y = cy + Math.sin(rot) * outerRadius;
+      this.body.lineTo(x, y);
+      rot += step;
+
+      x = cx + Math.cos(rot) * innerRadius;
+      y = cy + Math.sin(rot) * innerRadius;
+      this.body.lineTo(x, y);
+      rot += step;
+    }
+    this.body.lineTo(cx, cy - outerRadius);
+    this.body.fill({ color: fillColor, alpha: 0.85 });
+
+    this.body.circle(cx - 1, cy - 1, innerRadius * 0.4).fill({
+      color: highlightColor,
+      alpha: 0.6,
+    });
+  }
+
+  activate(positionX: number, positionY: number, isDropped: boolean): void {
+    this.state.positionX = positionX;
+    this.state.positionY = positionY;
     this.state.velocityX = 0;
     this.state.velocityY = 0;
+    this.state.radius = isDropped ? COIN_CONFIG.dropRadius : COIN_CONFIG.radius;
     this.state.isActive = true;
+    this.state.isDropped = isDropped;
     this.state.isCollected = false;
     this.visible = true;
     this.alpha = 1;
     this.scale.set(1);
-
     this.syncVisual();
+  }
+
+  deactivate(): void {
+    this.state.isActive = false;
+    this.state.isCollected = false;
+    this.visible = false;
+    this.removeGlow();
   }
 
   syncVisual(): void {
     this.position.set(this.state.positionX, this.state.positionY);
+    this.rotation = this.state.velocityX * 0.003;
   }
+
+  applyImpulse(velocityX: number, velocityY: number): void {
+    this.state.velocityX += velocityX;
+    this.state.velocityY += velocityY;
+  }
+
+  showGlow(): void {
+    if (this.glow) {
+      return;
+    }
+    this.glow = new Graphics();
+    this.glow.circle(0, 0, this.state.radius + 8).fill({ color: 0xffeb3b, alpha: 0.45 });
+    this.addChildAt(this.glow, 0);
+  }
+
+  removeGlow(): void {
+    if (this.glow) {
+      this.removeChild(this.glow);
+      this.glow.destroy();
+      this.glow = null;
+    }
+  }
+}
+
+export function createCoinTexture(): Texture {
+  return Texture.EMPTY;
+}
+
+export function resetCoinIds(): void {
+  nextCoinId = 1;
 }
