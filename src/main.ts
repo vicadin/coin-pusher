@@ -1,7 +1,11 @@
-import { Game } from './core/Game';
+import { Game } from '@/core/Game';
 
-const container = document.getElementById('game-container');
-if (container) {
-  const game = new Game();
-  void game.init(container);
+async function bootstrap(): Promise<void> {
+  const container = document.getElementById('game-container');
+  if (!container) {
+    throw new Error('#game-container not found');
+  }
+
 }
+
+void bootstrap();
