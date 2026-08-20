@@ -48,7 +48,7 @@ export class AudioManager {
         this.playTone(name);
       }
     } catch {
-      // Audio is optional — fail silently
+      // Audio is optional
     }
   }
 
@@ -87,7 +87,7 @@ export class AudioManager {
     if (!this.context) {
       return;
     }
-    const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+    const notes = [523.25, 659.25, 783.99, 1046.5];
     const now = this.context.currentTime;
 
     notes.forEach((freq, index) => {
@@ -135,6 +135,15 @@ export class AudioManager {
 
   setEnabled(enabled: boolean): void {
     this.enabled = enabled;
+  }
+
+  toggleMute(): boolean {
+    this.enabled = !this.enabled;
+    return this.enabled;
+  }
+
+  isEnabled(): boolean {
+    return this.enabled;
   }
 }
 

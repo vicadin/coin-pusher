@@ -14,6 +14,7 @@ import { StateMachine } from '@/core/StateMachine';
 import { createInitialGameState, type GameState } from '@/model/GameState';
 import { Coin, createCoinTexture, resetCoinIds } from '@/components/Coin';
 import { DropButton } from '@/components/DropButton';
+import { SoundButton } from '@/components/SoundButton';
 import { RewardPopup } from '@/components/RewardPopup';
 import { CtaPopup } from '@/components/CtaPopup';
 import { PhysicsSystem, type FieldBounds } from '@/systems/PhysicsSystem';
@@ -42,6 +43,7 @@ export class Game {
   private uiLayer: Container | null = null;
 
   private dropButton: DropButton | null = null;
+  private soundButton: SoundButton | null = null;
   private coinCounterText: Text | null = null;
   private scoreCardGraphic: Graphics | null = null;
   private displayedCoins = 120;
@@ -382,8 +384,14 @@ export class Game {
     this.coinCounterText.position.set(GAME_CONFIG.logicalWidth / 2, 44);
     this.uiLayer.addChild(this.coinCounterText);
 
+    this.soundButton = new SoundButton((muted) => {
+      this.audio.setEnabled(!muted);
+    });
+    this.soundButton.position.set(GAME_CONFIG.logicalWidth - 36, 44);
+    this.uiLayer.addChild(this.soundButton);
+
     this.dropButton = new DropButton(() => this.onDropRequested());
-    this.dropButton.position.set(GAME_CONFIG.logicalWidth / 2, 612);
+    this.dropButton.position.set(GAME_CONFIG.logicalWidth / 2, 618);
     this.uiLayer.addChild(this.dropButton);
   }
 
