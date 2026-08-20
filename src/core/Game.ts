@@ -224,10 +224,10 @@ export class Game {
     this.pusherContainer.addChild(this.pusherGraphic);
 
     this.pusherText = new Text({
-      text: '★ REWARD ZONE ★',
+      text: 'REWARD ZONE',
       style: new TextStyle({
         fontFamily: 'Arial, sans-serif',
-        fontSize: 12,
+        fontSize: 10,
         fontWeight: '900',
         fill: 0xffeb3b,
         letterSpacing: 1.2,
