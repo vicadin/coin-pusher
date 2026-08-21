@@ -1,24 +1,44 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'path';
+import path from 'path';
+import { viteSingleFile } from 'vite-plugin-singlefile';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   root: '.',
-  publicDir: 'public',
+  base: './',
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'),
+      '@': path.resolve(__dirname, './src'),
     },
   },
   build: {
-    target: 'es2022',
+    target: 'es2020',
     outDir: 'dist',
-    assetsInlineLimit: 4096,
+    assetsDir: 'assets',
+    minify: 'esbuild',
+    cssMinify: true,
+    sourcemap: false,
     rollupOptions: {
-      input: resolve(__dirname, 'index.html'),
+      output: {
+        manualChunks: undefined,
+        inlineDynamicImports: true,
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
+      },
     },
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 500,
   },
   server: {
-    host: '0.0.0.0',
     port: 3000,
+    host: '0.0.0.0',
+    allowedHosts: true,
+    open: false,
   },
-});
+/*     plugins: [viteSingleFile()],
+    build: {
+      target: 'es2015',
+      assetsInlineLimit: 100000000,
+      cssCodeSplit: false,
+    }, */
+}));
